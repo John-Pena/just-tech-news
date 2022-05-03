@@ -1,10 +1,8 @@
 const router = require('express').Router();
 const { User, Post, Vote } = require('../../models');
 
-// GET /api/users
+// get all users
 router.get('/', (req, res) => {
-  // Access our User model and run .findAll() method
-  // .findAll === SELECT * FROM users
   User.findAll({
     attributes: { exclude: ['password'] }
   })
@@ -15,9 +13,7 @@ router.get('/', (req, res) => {
     });
 });
 
-// GET /api/users/1
 router.get('/:id', (req, res) => {
-  // .findOne === SELECT FROM users WHERE id = 1
   User.findOne({
     attributes: { exclude: ['password'] },
     where: {
@@ -49,10 +45,8 @@ router.get('/:id', (req, res) => {
     });
 });
 
-// POST /api/users
 router.post('/', (req, res) => {
-  // Expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
-  // .create() === INSERT INTO users (username, email, password) VALUES ("Lernantino", "lernantino@gmail.com", "password1234") 
+  // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
   User.create({
     username: req.body.username,
     email: req.body.email,
@@ -66,7 +60,7 @@ router.post('/', (req, res) => {
 });
 
 router.post('/login', (req, res) => {
-  // expects {email: 'lerantino@gmail.com', password: 'password1234'}
+  // expects {email: 'lernantino@gmail.com', password: 'password1234'}
   User.findOne({
     where: {
       email: req.body.email
@@ -76,10 +70,11 @@ router.post('/login', (req, res) => {
       res.status(400).json({ message: 'No user with that email address!' });
       return;
     }
-    // Verify user
+
     const validPassword = dbUserData.checkPassword(req.body.password);
+
     if (!validPassword) {
-      res.status(400).json({ message: 'Incorrect password' });
+      res.status(400).json({ message: 'Incorrect password!' });
       return;
     }
 
@@ -87,10 +82,10 @@ router.post('/login', (req, res) => {
   });
 });
 
-// PUT /api/users/1
 router.put('/:id', (req, res) => {
-  // Expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
-  // .update() === UPDATE users SET username = "Lernantino", email = "lernantino@gmail.com", password = "newPassword1234" WHERE id = 1
+  // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
+
+  // pass in req.body instead to only update what's passed through
   User.update(req.body, {
     individualHooks: true,
     where: {
@@ -110,7 +105,6 @@ router.put('/:id', (req, res) => {
     });
 });
 
-// DELETE /api/users/1
 router.delete('/:id', (req, res) => {
   User.destroy({
     where: {
@@ -122,6 +116,7 @@ router.delete('/:id', (req, res) => {
         res.status(404).json({ message: 'No user found with this id' });
         return;
       }
+      res.json(dbUserData);
     })
     .catch(err => {
       console.log(err);
